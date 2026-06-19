@@ -43,7 +43,5 @@ def safe_name(name):
 
 
 def read_export(name):
-    cleaned = safe_name(name)
-    full = os.path.join("exports", cleaned)
-    with open(full) as fh:
-        return fh.read()
+    path = "exports/" + safe_name(name)
+    return open(path).read()
