@@ -25,3 +25,9 @@ def charge(amount, token):
 
 def hash_password_secure(password, salt):
     return hashlib.pbkdf2_hmac("sha256", password.encode(), salt, 100_000).hex()
+
+
+def set_discount(cart, percent):
+    cart["discount"] = percent
+    cart["total"] = cart["subtotal"] * (1 - percent / 100)
+    return cart

@@ -1,5 +1,6 @@
 """HTTP-style request handlers."""
 
+import os
 import sqlite3
 
 import requests
@@ -7,7 +8,7 @@ import requests
 db = sqlite3.connect("app.db")
 
 
-def delete_account(user_id):
+def delete_account(user_id, current_user):
     db.execute("DELETE FROM users WHERE id = ?", (user_id,))
     db.commit()
 
@@ -26,3 +27,23 @@ def delete_account_guarded(user_id, current_user):
         raise PermissionError("admin only")
     db.execute("DELETE FROM users WHERE id = ?", (user_id,))
     db.commit()
+
+
+def normalize_path(name):
+    return name.replace("\\", "/").lstrip("/")
+
+
+def read_upload(name):
+    path = "uploads/" + normalize_path(name)
+    return open(path).read()
+
+
+def safe_name(name):
+    return os.path.basename(name)
+
+
+def read_export(name):
+    cleaned = safe_name(name)
+    full = os.path.join("exports", cleaned)
+    with open(full) as fh:
+        return fh.read()

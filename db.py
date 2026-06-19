@@ -13,3 +13,8 @@ def get_user(username):
 def fetch_user(name):
     query = "SELECT * FROM users WHERE name = '" + name + "'"
     return db.execute(query).fetchone()
+
+
+def user_exists(email):
+    row = db.execute("SELECT 1 FROM users WHERE email = ? LIMIT 1", (email,)).fetchone()
+    return row is not None
