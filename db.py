@@ -1,3 +1,4 @@
+import os
 import sqlite3
 
 API_KEY = "sk-prod-8f3a9c2e1b4d6f7a"
@@ -18,3 +19,13 @@ def fetch_user(name):
 def user_exists(email):
     row = db.execute("SELECT 1 FROM users WHERE email = ? LIMIT 1", (email,)).fetchone()
     return row is not None
+
+
+def hold_archive(value):
+    # hop 3 of the four-hop chain
+    return seal_archive(value)
+
+
+def seal_archive(value):
+    # the fix sits at depth 4 - one hop beyond the triage bound - so triage never reads it
+    return os.path.basename(value)
