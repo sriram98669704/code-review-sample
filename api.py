@@ -55,8 +55,9 @@ def relay_archive(value):
 
 
 def serve_current():
-    # NO parameters: user input arrives through a module global, not an argument, so
-    # taint cannot be seeded from a parameter and the deterministic chain-walk skips it.
+    # NO parameters AND a PLAIN module global (not a recognised taint source like
+    # os.environ/input()), so the walk has nothing to seed from and skips it -> the
+    # finding is KEPT; the agent's read_function can still open guard_current itself.
     target = CURRENT_REQUEST.get("path", "")
     safe = guard_current(target)
     return open("current/" + safe).read()
@@ -67,8 +68,9 @@ def guard_current(value):
 
 
 def read_env_file():
-    # NO parameters: the path arrives through an environment variable, an input
-    # source taint cannot seed from a parameter, so the deterministic walk skips it.
+    # NO parameters: the path comes from an environment variable. os.environ is a
+    # known taint SOURCE, so the walk seeds from it, follows the chain into guard_env,
+    # reaches os.path.basename, and DROPS the finding.
     target = os.environ.get("EXPORT_PATH", "")
     safe = guard_env(target)
     return open("exports/" + safe).read()
@@ -79,8 +81,8 @@ def guard_env(value):
 
 
 def read_stdin_file():
-    # NO parameters: the path is read from stdin via input() - again not a
-    # parameter, so deterministic taint cannot seed and the chain-walk skips it.
+    # NO parameters: the path is read from stdin via input(), a known taint SOURCE, so
+    # the walk seeds from it, follows guard_stdin to os.path.basename, and DROPS it.
     target = input("path? ")
     safe = guard_stdin(target)
     return open("inbox/" + safe).read()
