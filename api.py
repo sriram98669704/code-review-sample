@@ -64,3 +64,27 @@ def serve_current():
 
 def guard_current(value):
     return os.path.basename(value)
+
+
+def read_env_file():
+    # NO parameters: the path arrives through an environment variable, an input
+    # source taint cannot seed from a parameter, so the deterministic walk skips it.
+    target = os.environ.get("EXPORT_PATH", "")
+    safe = guard_env(target)
+    return open("exports/" + safe).read()
+
+
+def guard_env(value):
+    return os.path.basename(value)
+
+
+def read_stdin_file():
+    # NO parameters: the path is read from stdin via input() - again not a
+    # parameter, so deterministic taint cannot seed and the chain-walk skips it.
+    target = input("path? ")
+    safe = guard_stdin(target)
+    return open("inbox/" + safe).read()
+
+
+def guard_stdin(value):
+    return os.path.basename(value)
